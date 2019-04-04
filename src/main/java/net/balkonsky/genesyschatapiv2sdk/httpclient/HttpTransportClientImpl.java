@@ -50,13 +50,13 @@ public class HttpTransportClientImpl implements HttpTransportClient {
     }
 
     @Override
-    public Optional<StringBuilder> get(String url) {
+    public Optional<String> get(String url) {
         //TODO
         return Optional.empty();
     }
 
     @Override
-    public Optional<StringBuilder> post(String url, String secureKey) {
+    public Optional<String> post(String url, String secureKey) {
         CloseableHttpClient closeableHttpClient;
         if (!Config.instance().isHttpProxyEnabled()) {
             closeableHttpClient = HttpClientBuilder
@@ -95,12 +95,12 @@ public class HttpTransportClientImpl implements HttpTransportClient {
     }
 
     @Override
-    public Optional<StringBuilder> post(String url, String secureKey, File file) {
+    public Optional<String> post(String url, String secureKey, File file) {
         //TODO
         return Optional.empty();
     }
 
-    private Optional<StringBuilder> getResponseContent(CloseableHttpResponse closeableHttpResponse, HttpEntity httpEntity) {
+    private Optional<String> getResponseContent(CloseableHttpResponse closeableHttpResponse, HttpEntity httpEntity) {
         StringBuilder response = new StringBuilder();
         try {
             if (closeableHttpResponse.getStatusLine().getStatusCode() == 200) {
@@ -141,6 +141,6 @@ public class HttpTransportClientImpl implements HttpTransportClient {
         } catch (Exception e) {
             log.error("error with get http response content", e);
         }
-        return Optional.ofNullable(response);
+        return Optional.of(response.toString());
     }
 }

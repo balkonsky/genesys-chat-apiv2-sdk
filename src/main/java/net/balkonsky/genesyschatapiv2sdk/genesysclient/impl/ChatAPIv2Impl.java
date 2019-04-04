@@ -184,9 +184,9 @@ public class ChatAPIv2Impl implements ChatAPIv2 {
 
     public void fileGetLimits() {
         try {
-            Optional<StringBuilder> result = transportclient.post("/genesys/2/chat-ntf", secureKey);
+            Optional<String> result = transportclient.post("/genesys/2/chat-ntf", secureKey);
             if (result.isPresent()) {
-                CometConnectResponse.Data data = gson.fromJson(result.get().toString(), CometConnectResponse.Data.class);
+                CometConnectResponse.Data data = gson.fromJson(result.get(), CometConnectResponse.Data.class);
                 List<FileGetLimitsEvent.Messages> eventMessages = new LinkedList<>();
                 data.getMessages().forEach(x -> eventMessages.add(
                         new FileGetLimitsEvent.Messages(
