@@ -9,7 +9,7 @@ public class ConfigTest {
     @Test
     public void getCometdServerHostTest() {
         String cometdServerHost = Config.instance().getCometdServerHost();
-        assertEquals(cometdServerHost,"https://pre-mapp-cimv2.yota.ru/genesys/cometd");
+        assertEquals(cometdServerHost,"http://10.2.136.250:8091/genesys/cometd");
     }
 
     @Test
@@ -21,46 +21,46 @@ public class ConfigTest {
     @Test
     public void getHttProxyHostTest() {
         String httProxyHost = Config.instance().getHttProxyHost();
-        assertEquals(httProxyHost,"https://pre-mapp-cimv2.yota.ru");
+        assertEquals(httProxyHost,"https://pre-site-cimv2.yota.ru");
     }
 
     @Test
     public void getConnectTimeoutTest() {
         Integer connectTimeout = Config.instance().getConnectTimeout();
-        Long truevalue = 100000L;
+        Integer truevalue = 1000;
         assertEquals(connectTimeout,truevalue);
     }
 
     @Test
     public void getConnectionRequestTimeoutTest() {
         Integer connectionRequestTimeout = Config.instance().getConnectionRequestTimeout();
-        Long truevalue = 100000L;
+        Integer truevalue = 1000;
         assertEquals(connectionRequestTimeout,truevalue);
     }
 
     @Test
     public void getSocketTimeoutTest() {
         Integer socketTimeout = Config.instance().getSocketTimeout();
-        Long truevalue = 5000L;
+        Integer truevalue = 5000;
         assertEquals(socketTimeout,truevalue);
     }
 
     @Test
     public void getHttpHostTest() {
         String httpHost = Config.instance().getHttpHost();
-        assertEquals(httpHost,"https://pre-mapp-cimv2.yota.ru");
+        assertEquals(httpHost,"https://pre-site-cimv2.yota.ru");
     }
 
     @Test
     public void getCometdChannelTest() {
         String cometdChannel = Config.instance().getCometdChannel();
-        assertEquals(cometdChannel,"/service/chatV2/mobile-chat");
+        assertEquals(cometdChannel,"/service/chatV2/web-chat");
     }
 
     @Test
     public void getCometdTransportTest(){
         String cometdTransport = Config.instance().getCometdTransport();
-        assertEquals(cometdTransport,"longpolling");
+        assertEquals(cometdTransport,"websocket");
 
     }
 }
