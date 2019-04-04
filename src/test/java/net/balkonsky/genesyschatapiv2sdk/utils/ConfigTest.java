@@ -26,21 +26,21 @@ public class ConfigTest {
 
     @Test
     public void getConnectTimeoutTest() {
-        Long connectTimeout = Config.instance().getConnectTimeout();
+        Integer connectTimeout = Config.instance().getConnectTimeout();
         Long truevalue = 100000L;
         assertEquals(connectTimeout,truevalue);
     }
 
     @Test
     public void getConnectionRequestTimeoutTest() {
-        Long connectionRequestTimeout = Config.instance().getConnectionRequestTimeout();
+        Integer connectionRequestTimeout = Config.instance().getConnectionRequestTimeout();
         Long truevalue = 100000L;
         assertEquals(connectionRequestTimeout,truevalue);
     }
 
     @Test
     public void getSocketTimeoutTest() {
-        Long socketTimeout = Config.instance().getSocketTimeout();
+        Integer socketTimeout = Config.instance().getSocketTimeout();
         Long truevalue = 5000L;
         assertEquals(socketTimeout,truevalue);
     }

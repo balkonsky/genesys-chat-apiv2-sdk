@@ -1,4 +1,4 @@
-package net.balkonsky.genesyschatapiv2sdk.client;
+package net.balkonsky.genesyschatapiv2sdk.genesysclient;
 
 import java.io.File;
 import java.util.Map;

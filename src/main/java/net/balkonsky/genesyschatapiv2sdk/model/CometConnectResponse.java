@@ -1,5 +1,6 @@
 package net.balkonsky.genesyschatapiv2sdk.model;
 
+import com.google.gson.annotations.SerializedName;
 import lombok.*;
 
 import java.util.LinkedList;
@@ -46,6 +47,7 @@ public class CometConnectResponse {
         private String text;
         private String type;
         private Long utcTime;
+        private UserData userData;
 
     }
 
@@ -59,5 +61,34 @@ public class CometConnectResponse {
         private Long participantId;
         private String nickname;
         private String type;
+    }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Setter
+    @Getter
+    @EqualsAndHashCode
+    @ToString
+    public static class UserData {
+        @SerializedName("download-attempts")
+        private String downloadattempts;
+        @SerializedName("upload-max-files")
+        private String uploadmaxfiles;
+        @SerializedName("delete-file")
+        private String deletefile;
+        @SerializedName("upload-max-file-size")
+        private String uploadmaxfilesize;
+        @SerializedName("used-download-attempts")
+        private String useddownloadattempts;
+        @SerializedName("used-upload-max-total-size")
+        private String useduploadmaxtotalsize;
+        @SerializedName("upload-need-agent")
+        private String uploadneedagent;
+        @SerializedName("used-upload-max-files")
+        private String useduploadmaxfiles;
+        @SerializedName("upload-max-total-size")
+        private String uploadmaxtotalsize;
+        @SerializedName("upload-file-types")
+        private String uploadfiletypes;
     }
 }

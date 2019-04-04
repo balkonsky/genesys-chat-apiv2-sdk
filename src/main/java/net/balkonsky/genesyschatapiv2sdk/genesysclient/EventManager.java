@@ -1,4 +1,4 @@
-package net.balkonsky.genesyschatapiv2sdk.client;
+package net.balkonsky.genesyschatapiv2sdk.genesysclient;
 
 import net.balkonsky.genesyschatapiv2sdk.model.ChatState;
 import net.balkonsky.genesyschatapiv2sdk.model.chatevents.ChatEvent;

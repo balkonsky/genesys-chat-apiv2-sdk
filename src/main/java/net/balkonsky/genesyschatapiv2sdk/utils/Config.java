@@ -58,10 +58,10 @@ public class Config {
         throw new NullPointerException("HttProxyHost is null");
     }
 
-    public Long getConnectTimeout() {
+    public Integer getConnectTimeout() {
         try (final InputStream fis = this.getClass().getResourceAsStream(filename)) {
             properties.load(fis);
-            Long connectTimeout = Long.valueOf(properties.getProperty("ConnectTimeout"));
+            Integer connectTimeout = Integer.valueOf(properties.getProperty("ConnectTimeout"));
             log.debug("return ConnectTimeout = {} from config file", connectTimeout);
             return connectTimeout;
         } catch (Exception e) {
@@ -70,10 +70,10 @@ public class Config {
         throw new NullPointerException("ConnectTimeout is null");
     }
 
-    public Long getConnectionRequestTimeout() {
+    public Integer getConnectionRequestTimeout() {
         try (final InputStream fis = this.getClass().getResourceAsStream(filename)) {
             properties.load(fis);
-            Long connectionRequestTimeout = Long.valueOf(properties.getProperty("ConnectionRequestTimeout"));
+            Integer connectionRequestTimeout = Integer.valueOf(properties.getProperty("ConnectionRequestTimeout"));
             log.debug("return ConnectionRequestTimeout = {} from config file", connectionRequestTimeout);
             return connectionRequestTimeout;
         } catch (Exception e) {
@@ -82,10 +82,10 @@ public class Config {
         throw new NullPointerException("ConnectionRequestTimeout is null");
     }
 
-    public Long getSocketTimeout() {
+    public Integer getSocketTimeout() {
         try (final InputStream fis = this.getClass().getResourceAsStream(filename)) {
             properties.load(fis);
-            Long socketTimeout = Long.valueOf(properties.getProperty("SocketTimeout"));
+            Integer socketTimeout = Integer.valueOf(properties.getProperty("SocketTimeout"));
             log.debug("return SocketTimeout = {} from config file", socketTimeout);
             return socketTimeout;
         } catch (Exception e) {

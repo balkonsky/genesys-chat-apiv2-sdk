@@ -1,10 +1,10 @@
-package net.balkonsky.genesyschatapiv2sdk.client.impl;
+package net.balkonsky.genesyschatapiv2sdk.genesysclient.impl;
 
 import com.google.gson.Gson;
-import net.balkonsky.genesyschatapiv2sdk.client.ChatAPIv2;
-import net.balkonsky.genesyschatapiv2sdk.client.EventManager;
-import net.balkonsky.genesyschatapiv2sdk.httpclient.TransportClient;
-import net.balkonsky.genesyschatapiv2sdk.httpclient.TransportClientImpl;
+import net.balkonsky.genesyschatapiv2sdk.genesysclient.ChatAPIv2;
+import net.balkonsky.genesyschatapiv2sdk.genesysclient.EventManager;
+import net.balkonsky.genesyschatapiv2sdk.httpclient.HttpTransportClient;
+import net.balkonsky.genesyschatapiv2sdk.httpclient.HttpTransportClientImpl;
 import net.balkonsky.genesyschatapiv2sdk.model.ChatParticipantType;
 import net.balkonsky.genesyschatapiv2sdk.model.ChatState;
 import net.balkonsky.genesyschatapiv2sdk.model.CometConnectResponse;
@@ -21,10 +21,7 @@ import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.websocket.WebSocketClientFactory;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 public class ChatAPIv2Impl implements ChatAPIv2 {
@@ -32,13 +29,13 @@ public class ChatAPIv2Impl implements ChatAPIv2 {
     private EventManager eventManager;
     private BayeuxClient client;
     private Gson gson;
-    private TransportClient transportclient;
+    private HttpTransportClient transportclient;
 
     private String secureKey;
 
     public ChatAPIv2Impl(EventManager eventManager) {
         this.gson = new Gson();
-        this.transportclient = new TransportClientImpl();
+        this.transportclient = new HttpTransportClientImpl();
         this.eventManager = eventManager;
         this.chatListener = new ChatListener();
     }
@@ -57,6 +54,7 @@ public class ChatAPIv2Impl implements ChatAPIv2 {
                 }
                 case ("websocket"): {
                     log.info("set transport - Web Socket client");
+
                     WebSocketClientFactory wscf = new WebSocketClientFactory();
                     wscf.start();
                     client = new BayeuxClient(
@@ -88,33 +86,32 @@ public class ChatAPIv2Impl implements ChatAPIv2 {
                             eventManager.notify(ChatState.CONNECTING);
                         });
                     } else {
-                        closeConnection();
+                        eventManager.notify(ChatState.DISCONNECT);
                     }
                 });
 
         client.getChannel(Channel.META_CONNECT).addListener((ClientSessionChannel.MessageListener)
                 (channel, message) -> {
                     if (message.isSuccessful() && !client.isDisconnected()) {
-                        log.info("Client receive successful message {}", message);
+                        log.info("client receive successful message {}", message);
                     } else {
-                        log.error("Connection to Server Closed");
-                        closeConnection();
+                        log.error("connection to Server Closed");
+                        eventManager.notify(ChatState.DISCONNECT);
                     }
                 });
 
         client.handshake();
         if (client.waitFor(Config.instance().getConnectTimeout(), BayeuxClient.State.CONNECTED)) {
-            log.info("Success handshake with server at {}", Config.instance().getCometdServerHost());
+            log.info("success handshake with server at {}", Config.instance().getCometdServerHost());
             eventManager.notify(ChatState.CONNECT);
         } else {
-            log.info("Could not handshake with server at {}", Config.instance().getCometdServerHost());
-            closeConnection();
+            log.info("could not handshake with server at {}", Config.instance().getCometdServerHost());
+            eventManager.notify(ChatState.DISCONNECT);
         }
     }
 
     public void closeConnection() {
         client.disconnect();
-        eventManager.notify(ChatState.CLOSECONNECTION);
     }
 
     public void openSession(Map<String, Object> userdata, String nickname, String subject) {
@@ -132,8 +129,16 @@ public class ChatAPIv2Impl implements ChatAPIv2 {
     }
 
     public void closeSession() {
-        //TODO
-        eventManager.notify(ChatState.CLOSESESSION);
+        try {
+            eventManager.notify(ChatState.CLOSINGSESSION);
+            Map<String, Object> data = new HashMap<>();
+            data.put("operation", "disconnect");
+            data.put("secureKey", secureKey);
+            client.getChannel(Config.instance().getCometdChannel()).publish(data);
+            eventManager.notify(ChatState.CLOSESESSION);
+        } catch (Exception e) {
+            log.error("error: ", e);
+        }
     }
 
     public void sendMessage(String text) {
@@ -178,16 +183,61 @@ public class ChatAPIv2Impl implements ChatAPIv2 {
     }
 
     public void fileGetLimits() {
-        //TODO
-//        transportclient.post(secureKey, "/genesys/2/chat-ntf");
+        try {
+            Optional<StringBuilder> result = transportclient.post("/genesys/2/chat-ntf", secureKey);
+            if (result.isPresent()) {
+                CometConnectResponse.Data data = gson.fromJson(result.get().toString(), CometConnectResponse.Data.class);
+                List<FileGetLimitsEvent.Messages> eventMessages = new LinkedList<>();
+                data.getMessages().forEach(x -> eventMessages.add(
+                        new FileGetLimitsEvent.Messages(
+                                x.getFrom().getParticipantId(),
+                                x.getFrom().getNickname(),
+                                x.getFrom().getType(),
+                                x.getIndex(),
+                                x.getText(),
+                                x.getType(),
+                                x.getUtcTime(),
+                                new FileGetLimitsEvent.UserData(
+                                        x.getUserData().getDownloadattempts(),
+                                        x.getUserData().getUploadmaxfiles(),
+                                        x.getUserData().getDeletefile(),
+                                        x.getUserData().getUploadmaxfilesize(),
+                                        x.getUserData().getUseddownloadattempts(),
+                                        x.getUserData().getUseduploadmaxtotalsize(),
+                                        x.getUserData().getUploadneedagent(),
+                                        x.getUserData().getUseduploadmaxfiles(),
+                                        x.getUserData().getUploadmaxtotalsize(),
+                                        x.getUserData().getUploadfiletypes()
+                                )
+                        )));
+
+                eventManager.notify(new FileGetLimitsEvent(
+                        data.getChatEnded(),
+                        data.getStatusCode(),
+                        eventMessages
+                ));
+            }
+        }
+        catch (Exception e ){
+            log.error("error:",e);
+            eventManager.notify(new ChatErrorEvent(e.getMessage(), e.getMessage()));
+            eventManager.notify(ChatState.DISCONNECT);
+        }
     }
 
     public void sendCustomNotice(String text) {
-        Map<String, Object> data = new HashMap<>();
-        data.put("operation", "customNotice");
-        data.put("message", text);
-        data.put("secureKey", secureKey);
-        client.getChannel(Config.instance().getCometdChannel()).publish(data);
+        try {
+            Map<String, Object> data = new HashMap<>();
+            data.put("operation", "customNotice");
+            data.put("message", text);
+            data.put("secureKey", secureKey);
+            client.getChannel(Config.instance().getCometdChannel()).publish(data);
+        }
+        catch (Exception e ){
+            log.error("error:",e);
+            eventManager.notify(new ChatErrorEvent(e.getMessage(), e.getMessage()));
+            eventManager.notify(ChatState.DISCONNECT);
+        }
     }
 
     private class ChatListener implements ClientSessionChannel.MessageListener {
@@ -204,7 +254,7 @@ public class ChatAPIv2Impl implements ChatAPIv2 {
                         eventManager.notify(ChatState.OPENSESSION);
                     }
                     if (data.getChatEnded()) {
-                        closeConnection();
+                        eventManager.notify(ChatState.CLOSESESSION);
                     }
 
                     for (CometConnectResponse.Messages messages : data.getMessages()) {
@@ -585,14 +635,13 @@ public class ChatAPIv2Impl implements ChatAPIv2 {
 
                 } else {
                     log.error("receive an error response {}, disconnect from chat session", message);
-                    eventManager.notify(new ChatErrorEvent());
-                    closeConnection();
+                    eventManager.notify(new ChatErrorEvent(cometConnectResponse.getError(), cometConnectResponse.getError()));
+                    eventManager.notify(ChatState.DISCONNECT);
                 }
-            } catch (
-                    Exception e)
-
-            {
+            } catch (Exception e) {
                 log.error("error:", e);
+                eventManager.notify(new ChatErrorEvent(e.getMessage(), e.getMessage()));
+                eventManager.notify(ChatState.DISCONNECT);
             }
         }
     }
