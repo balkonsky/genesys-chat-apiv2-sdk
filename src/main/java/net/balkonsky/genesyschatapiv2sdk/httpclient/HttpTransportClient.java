@@ -1,8 +1,5 @@
 package net.balkonsky.genesyschatapiv2sdk.httpclient;
 
-import net.balkonsky.genesyschatapiv2sdk.model.CometConnectResponse;
-import net.balkonsky.genesyschatapiv2sdk.model.HttpResponse;
-
 import java.io.File;
 import java.util.Optional;
 

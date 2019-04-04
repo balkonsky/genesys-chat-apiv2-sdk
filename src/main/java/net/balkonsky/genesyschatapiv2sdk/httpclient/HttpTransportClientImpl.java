@@ -1,8 +1,6 @@
 package net.balkonsky.genesyschatapiv2sdk.httpclient;
 
 import lombok.extern.slf4j.Slf4j;
-import net.balkonsky.genesyschatapiv2sdk.model.CometConnectResponse;
-import net.balkonsky.genesyschatapiv2sdk.model.HttpResponse;
 import net.balkonsky.genesyschatapiv2sdk.utils.Config;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
@@ -22,6 +20,7 @@ import org.apache.http.ssl.SSLContextBuilder;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.Optional;
 
 @Slf4j
@@ -96,7 +95,42 @@ public class HttpTransportClientImpl implements HttpTransportClient {
 
     @Override
     public Optional<String> post(String url, String secureKey, File file) {
-        //TODO
+        log.debug("creating Apache Http Client...");
+        CloseableHttpClient closeableHttpClient;
+        if (!Config.instance().isHttpProxyEnabled()) {
+            closeableHttpClient = HttpClientBuilder
+                    .create()
+                    .setSSLSocketFactory(sslsf)
+                    .setDefaultCookieStore(cookieStore)
+                    .build();
+        } else {
+            HttpHost proxyHost = new HttpHost(Config.instance().getHttProxyHost());
+            closeableHttpClient = HttpClientBuilder
+                    .create()
+                    .setSSLSocketFactory(sslsf)
+                    .setDefaultCookieStore(cookieStore)
+                    .setProxy(proxyHost)
+                    .build();
+        }
+
+        String uri = Config.instance().getHttpHost() + url;
+        log.info("URL request {}", uri);
+        try {
+            HttpPost httpPost = new HttpPost(uri);
+            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+            builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+            builder.setCharset(Charset.forName("UTF-8"));
+            builder.addBinaryBody("file", file, ContentType.DEFAULT_BINARY, file.getName());
+            builder.addTextBody("secureKey", secureKey, ContentType.DEFAULT_BINARY);
+            builder.addTextBody("operation", "fileUpload", ContentType.DEFAULT_BINARY);
+            HttpEntity entity = builder.build();
+            httpPost.setEntity(entity);
+            CloseableHttpResponse closeableHttpResponse = closeableHttpClient.execute(httpPost);
+            HttpEntity httpEntity = closeableHttpResponse.getEntity();
+            return getResponseContent(closeableHttpResponse, httpEntity);
+        } catch (Exception e) {
+            log.error("error:", e);
+        }
         return Optional.empty();
     }
 

@@ -8,6 +8,7 @@ import net.balkonsky.genesyschatapiv2sdk.httpclient.HttpTransportClientImpl;
 import net.balkonsky.genesyschatapiv2sdk.model.ChatParticipantType;
 import net.balkonsky.genesyschatapiv2sdk.model.ChatState;
 import net.balkonsky.genesyschatapiv2sdk.model.CometConnectResponse;
+import net.balkonsky.genesyschatapiv2sdk.model.FileSendResponse;
 import net.balkonsky.genesyschatapiv2sdk.model.chatevents.*;
 import net.balkonsky.genesyschatapiv2sdk.utils.Config;
 import lombok.extern.slf4j.Slf4j;
@@ -112,6 +113,7 @@ public class ChatAPIv2Impl implements ChatAPIv2 {
 
     public void closeConnection() {
         client.disconnect();
+        eventManager.notify(ChatState.CLOSECONNECTION);
     }
 
     public void openSession(Map<String, Object> userdata, String nickname, String subject) {
@@ -178,8 +180,15 @@ public class ChatAPIv2Impl implements ChatAPIv2 {
     }
 
     public void sendFile(File file) {
-        //TODO
-//        transportclient.post("/genesys/2/chat-ntf", secureKey, file);
+        Optional<String> result = transportclient.post("/genesys/2/chat-ntf", secureKey, file);
+        if (result.isPresent()) {
+            FileSendResponse fileSendResponse = gson.fromJson(result.get(), FileSendResponse.class);
+            eventManager.notify(new FileSendEvent(
+                    fileSendResponse.getChatEnded(),
+                    fileSendResponse.getStatusCode(),
+                    new FileSendEvent.UserData(fileSendResponse.getUserData().getFileid())
+            ));
+        }
     }
 
     public void fileGetLimits() {
@@ -217,9 +226,8 @@ public class ChatAPIv2Impl implements ChatAPIv2 {
                         eventMessages
                 ));
             }
-        }
-        catch (Exception e ){
-            log.error("error:",e);
+        } catch (Exception e) {
+            log.error("error:", e);
             eventManager.notify(new ChatErrorEvent(e.getMessage(), e.getMessage()));
             eventManager.notify(ChatState.DISCONNECT);
         }
@@ -232,9 +240,8 @@ public class ChatAPIv2Impl implements ChatAPIv2 {
             data.put("message", text);
             data.put("secureKey", secureKey);
             client.getChannel(Config.instance().getCometdChannel()).publish(data);
-        }
-        catch (Exception e ){
-            log.error("error:",e);
+        } catch (Exception e) {
+            log.error("error:", e);
             eventManager.notify(new ChatErrorEvent(e.getMessage(), e.getMessage()));
             eventManager.notify(ChatState.DISCONNECT);
         }
