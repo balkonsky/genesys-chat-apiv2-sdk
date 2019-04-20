@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: net.balkonsky.genesyschatapiv2sdk.utils.ConfigTest
--------------------------------------------------------------------------------
-Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.428 sec
