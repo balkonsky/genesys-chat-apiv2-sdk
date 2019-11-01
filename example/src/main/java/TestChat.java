@@ -1,4 +1,3 @@
-
 import net.balkonsky.genesyschatapiv2sdk.genesysclient.ChatAPIv2Client;
 import net.balkonsky.genesyschatapiv2sdk.genesysclient.CometdTransport;
 import net.balkonsky.genesyschatapiv2sdk.genesysclient.EventListener;
@@ -22,7 +21,6 @@ import java.util.concurrent.Executors;
 public class TestChat {
 
     private ChatAPIv2Client chatAPIv2Client;
-    private Map<String, Object> userData;
 
     public static void main(String[] args) {
         new TestChat().startTest();
@@ -66,7 +64,7 @@ public class TestChat {
         public void onState(ChatState chatState) {
             System.out.println(chatState);
             if (chatState == ChatState.CONNECT) {
-                userData = new HashMap<>();
+                Map<String, Object> userData = new HashMap<>();
                 userData.put("push_notification_provider", "test");
                 userData.put("push_notification_type", "customhttp");
                 userData.put("UniqId", UUID.randomUUID().toString().toUpperCase());

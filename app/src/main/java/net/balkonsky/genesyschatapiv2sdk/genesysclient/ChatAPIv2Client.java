@@ -26,6 +26,8 @@ public interface ChatAPIv2Client {
 
     void requestNotifications(String transcriptposition);
 
+    void requestNotifications();
+
     Optional<FileSendResponse> sendFile(File file);
 
     Optional<CometConnectResponse.Data> fileGetLimits();

@@ -30,7 +30,7 @@
     <logger name="org.apache" level="ERROR"/>
     <logger name="httpclient" level="ERROR"/>
     <logger name="org.eclipse.jetty" level="ERROR"/>
-    <logger name="org.cometd.client" level="DEBUG"/>
+    <logger name="org.cometd.client" level="debug"/>
 
     <root level="debug">
         <appender-ref ref="STDOUT"/>

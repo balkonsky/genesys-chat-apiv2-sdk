@@ -70,7 +70,7 @@ public class ChatAPIv2ClientImpl implements ChatAPIv2Client {
             @NonNull Long cometdConnectTimeout,
             @NonNull CometdTransport cometdTransport,
             @NonNull HttpTransportClient transportClient) {
-        log.trace("create chat apiv2 client with params: {}");
+        log.trace("create chat apiv2 client with params: cometd server host -  {},cometd channel - {}", cometdServerHost, cometdChannel);
         this.transportClient = transportClient;
         this.eventManager = eventManager;
         this.cometdServerHost = cometdServerHost + "/genesys/cometd";
@@ -249,6 +249,13 @@ public class ChatAPIv2ClientImpl implements ChatAPIv2Client {
         client.getChannel(cometdChannel).publish(data);
     }
 
+    public void requestNotifications() {
+        Map<String, Object> data = new HashMap<>();
+        data.put("operation", "requestNotifications");
+        data.put("secureKey", secureKey);
+        client.getChannel(cometdChannel).publish(data);
+    }
+
     /**
      * This method send request to upload a file into a chat session
      * @param file to upload {@link File}
@@ -261,6 +268,7 @@ public class ChatAPIv2ClientImpl implements ChatAPIv2Client {
             eventManager.notify(new FileSendEvent(
                     fileSendResponse.getChatEnded(),
                     fileSendResponse.getStatusCode(),
+                    fileSendResponse.getSecureKey(),
                     new FileSendEvent.UserData(fileSendResponse.getUserData().getFileid())
             ));
             return Optional.of(fileSendResponse);

@@ -13,6 +13,7 @@ import lombok.ToString;
 public class FileSendEvent implements ChatEvent {
     private Boolean chatEnded;
     private Integer statusCode;
+    private String secureKey;
     private UserData userData;
 
     @AllArgsConstructor

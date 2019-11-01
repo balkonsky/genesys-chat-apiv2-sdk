@@ -20,6 +20,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 @Slf4j
@@ -105,7 +106,7 @@ public class HttpTransportClientImpl implements HttpTransportClient {
             HttpPost httpPost = new HttpPost(uri.toString());
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
             builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
-            builder.setCharset(Charset.forName("UTF-8"));
+            builder.setCharset(StandardCharsets.UTF_8);
             builder.addBinaryBody("file", file, ContentType.DEFAULT_BINARY, file.getName());
             builder.addTextBody("secureKey", secureKey, ContentType.DEFAULT_BINARY);
             builder.addTextBody("operation", "fileUpload", ContentType.DEFAULT_BINARY);

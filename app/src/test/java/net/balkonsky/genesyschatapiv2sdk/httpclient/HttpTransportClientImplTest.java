@@ -1,4 +1,4 @@
-package net.balkonsky.genesyschatapiv2sdk.httpclient;
+package java.net.balkonsky.genesyschatapiv2sdk.httpclient;
 
 import org.junit.Test;
 

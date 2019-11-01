@@ -15,6 +15,7 @@ public class FileSendResponse {
     private Boolean chatEnded;
     private Integer statusCode;
     private UserData userData;
+    private String secureKey;
 
     @AllArgsConstructor
     @NoArgsConstructor
