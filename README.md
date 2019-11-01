@@ -1,6 +1,6 @@
 # Java SDK for Genesys Chat APIv2
 
-One Paragraph of project description goes here
+This is Java SDK library for Genesys Chat API v2 with CometD. See more in [Genesys Document](https://docs.genesys.com/Documentation/GMS/8.5.2/API/ChatAPIv2CometD)
 
 ## Getting Started
 
