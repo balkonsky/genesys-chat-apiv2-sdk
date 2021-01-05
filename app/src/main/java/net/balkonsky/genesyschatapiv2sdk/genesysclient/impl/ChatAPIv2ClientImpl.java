@@ -26,42 +26,64 @@ import java.util.*;
 
 /**
  * Main object to interact with Genesys Mobile Services Chat APIv2
+ *
  * @author Maksim Avramenko
  * @version 0.9.1
  */
 
 @Slf4j
 public class ChatAPIv2ClientImpl implements ChatAPIv2Client {
-    /**Bayeux chat listener interface field*/
+    /**
+     * Bayeux chat listener interface field
+     */
     private ChatListener chatListener;
-    /**Event manager to notify listeners filed*/
+    /**
+     * Event manager to notify listeners filed
+     */
     private EventManager eventManager;
-    /**Bayeux client filed*/
+    /**
+     * Bayeux client filed
+     */
     private BayeuxClient client;
-    /**GSON field to parse response in {@link ChatListener} */
+    /**
+     * GSON field to parse response in {@link ChatListener}
+     */
     private Gson gson;
 
-    /**Http transport field to send files in chat apiv2*/
+    /**
+     * Http transport field to send files in chat apiv2
+     */
     private HttpTransportClient transportClient;
-    /**Cometd server host field*/
+    /**
+     * Cometd server host field
+     */
     private String cometdServerHost;
-    /**Cometd channel field*/
+    /**
+     * Cometd channel field
+     */
     private String cometdChannel;
-    /**Cometd connect to server timeout field*/
+    /**
+     * Cometd connect to server timeout field
+     */
     private Long cometdConnectTimeout;
-    /**Cometd transport type field*/
+    /**
+     * Cometd transport type field
+     */
     private CometdTransport cometdTransport;
-    /**SecureKey field*/
+    /**
+     * SecureKey field
+     */
     private String secureKey;
 
     /**
      * Default constructor
-     * @param eventManager to notify listeners of chat events
-     * @param cometdServerHost hostname of cometd server
-     * @param cometdChannel cometd channel name
+     *
+     * @param eventManager         to notify listeners of chat events
+     * @param cometdServerHost     hostname of cometd server
+     * @param cometdChannel        cometd channel name
      * @param cometdConnectTimeout timeout for connect to cometd server
-     * @param cometdTransport enum type of cometd transport {@link CometdTransport}
-     * @param transportClient http transport client {@link HttpTransportClient}
+     * @param cometdTransport      enum type of cometd transport {@link CometdTransport}
+     * @param transportClient      http transport client {@link HttpTransportClient}
      */
     public ChatAPIv2ClientImpl(
             @NonNull EventManager eventManager,
@@ -135,6 +157,7 @@ public class ChatAPIv2ClientImpl implements ChatAPIv2Client {
                 (channel, message) -> {
                     if (message.isSuccessful() && !client.isDisconnected()) {
                         log.info("client receive successful message {}", message);
+                        eventManager.notify(ChatState.CONNECT);
                     } else {
                         log.error("connection to Server Closed");
                         eventManager.notify(ChatState.DISCONNECT);
@@ -161,9 +184,10 @@ public class ChatAPIv2ClientImpl implements ChatAPIv2Client {
 
     /**
      * This method open chat session by Chat APIv2
+     *
      * @param userdata specific data of chat session
      * @param nickname nickname of user
-     * @param subject of chat session
+     * @param subject  of chat session
      */
     public void openSession(Map<String, Object> userdata, String nickname, String subject) {
         try {
@@ -197,6 +221,7 @@ public class ChatAPIv2ClientImpl implements ChatAPIv2Client {
 
     /**
      * This method send message in chat session from user
+     *
      * @param text of message
      */
     public void sendMessage(String text) {
@@ -214,6 +239,7 @@ public class ChatAPIv2ClientImpl implements ChatAPIv2Client {
     /**
      * This method send command to indicate that the client has started typing a message.
      * You can include a partial message, if desired, for typing preview.
+     *
      * @param text of message
      */
     public void startUserTyping(String text) {
@@ -227,6 +253,7 @@ public class ChatAPIv2ClientImpl implements ChatAPIv2Client {
     /**
      * This method send command to indicate that the client has stopped typing a message.
      * You can include a partial message, if desired, for typing preview.
+     *
      * @param text of message
      */
     public void stopUserTyping(String text) {
@@ -239,6 +266,7 @@ public class ChatAPIv2ClientImpl implements ChatAPIv2Client {
 
     /**
      * This method send request notifications to be delivered for the existing chat session, after the CometD channel has been disconnected
+     *
      * @param transcriptposition transcript event position from which the client application would like to receive the previous events. If you set this option to 0 or if you don't set this option, the client will receive all the events.
      */
     public void requestNotifications(String transcriptposition) {
@@ -258,6 +286,7 @@ public class ChatAPIv2ClientImpl implements ChatAPIv2Client {
 
     /**
      * This method send request to upload a file into a chat session
+     *
      * @param file to upload {@link File}
      * @return optional deserialize response from server object
      */
@@ -278,6 +307,7 @@ public class ChatAPIv2ClientImpl implements ChatAPIv2Client {
 
     /**
      * This method send request to avoid wasting network and CPU overhead by checking for allowable file types or maximum file size—or other constraints on file uploads—before sending an upload request.
+     *
      * @return optional deserialize response limits object
      */
     public Optional<CometConnectResponse.Data> fileGetLimits() {
@@ -326,6 +356,7 @@ public class ChatAPIv2ClientImpl implements ChatAPIv2Client {
 
     /**
      * This method send a custom notice to the agent. The agent will need a customized desktop that can process this notice.
+     *
      * @param text of message
      */
     public void sendCustomNotice(String text) {

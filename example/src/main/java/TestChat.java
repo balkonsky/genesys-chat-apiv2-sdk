@@ -32,16 +32,16 @@ public class TestChat {
             EventManager eventManager = new EventManager();
             eventManager.subscribe(new ChatEventListener());
             HttpTransportClient httpTransportClient = new HttpTransportClientImpl(
-                    "localhost",
-                    5000,
-                    100000,
-                    100000
+                    "https://test-mapp-cimv2.g4lab.com",
+                    500,
+                    100,
+                    1000
             );
             chatAPIv2Client = new ChatAPIv2ClientImpl(
                     eventManager,
-                    "localhost",
-                    "/service/chatV2/customer-support",
-                    100000L,
+                    "https://test-mapp-cimv2.g4lab.com",
+                    "/service/chatV2/mobile-chat",
+                    100L,
                     CometdTransport.LONGPOLLING,
                     httpTransportClient
             );
