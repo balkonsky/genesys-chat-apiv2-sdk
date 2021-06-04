@@ -89,7 +89,7 @@
         <lombok.version>1.18.4</lombok.version>
         <junit.version>5.7.0</junit.version>
         <mockito.version>1.8.4</mockito.version>
-        <httpclient.version>4.5.8</httpclient.version>
+        <httpclient.version>4.5.13</httpclient.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
